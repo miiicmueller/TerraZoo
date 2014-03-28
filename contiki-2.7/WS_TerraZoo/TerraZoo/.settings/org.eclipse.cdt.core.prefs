@@ -1,0 +1,6 @@
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.config.gnu.exe.debug.1895477312/PATH/delimiter=\:
+environment/project/cdt.managedbuild.config.gnu.exe.debug.1895477312/PATH/operation=replace
+environment/project/cdt.managedbuild.config.gnu.exe.debug.1895477312/PATH/value=/opt/msp430-47/bin/\:/bin\:/usr/local/gogoc/bin\:/opt/Xilinx/14.7/ISE_DS/ISE/bin/lin64/\:/opt/microchip/xc16/v1.11/bin\:/usr/local/MATLAB/R2012a/bin\:/home/michael/bin\:/usr/lib/lightdm/lightdm\:/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/usr/games
+environment/project/cdt.managedbuild.config.gnu.exe.debug.1895477312/append=true
+environment/project/cdt.managedbuild.config.gnu.exe.debug.1895477312/appendContributed=true

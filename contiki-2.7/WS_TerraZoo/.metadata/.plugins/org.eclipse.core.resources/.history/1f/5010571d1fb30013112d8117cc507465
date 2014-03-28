@@ -1,0 +1,9 @@
+#ifdef HTTP_PUT_H
+#define HTTP_PUT_H
+
+typedef enum StateXivelyEnum {
+	kStatePutTemp, kStatePutLumin, kStateGetTempCons, kStateGetLuminCons
+} ;
+
+
+#endif
