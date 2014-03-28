@@ -14,6 +14,6 @@ CFLAGS+= -DUIP_CONF_IPV6_RPL
 
 PROJECT_SOURCEFILES += xively_cst.c
 
-CONTIKI = /home/michael//Module_Sys_comm/TerraZoo/contiki-2.7
+CONTIKI = ../..
 include $(CONTIKI)/Makefile.include
 
