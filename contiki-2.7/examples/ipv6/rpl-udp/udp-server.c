@@ -67,12 +67,12 @@ tcpip_handler(void)
     PRINTF("%d",
            UIP_IP_BUF->srcipaddr.u8[sizeof(UIP_IP_BUF->srcipaddr.u8) - 1]);
     PRINTF("\n");
-#if SERVER_REPLY
+//#if SERVER_REPLY
     PRINTF("DATA sending reply\n");
     uip_ipaddr_copy(&server_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
     uip_udp_packet_send(server_conn, "Reply", sizeof("Reply"));
     uip_create_unspecified(&server_conn->ripaddr);
-#endif
+//#endif
   }
 }
 /*---------------------------------------------------------------------------*/
@@ -125,6 +125,7 @@ PROCESS_THREAD(udp_server_process, ev, data)
 #elif 1
 /* Mode 2 - 16 bits inline */
   uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0x00ff, 0xfe00, 1);
+  printf("UDP conf router\n");
 #else
 /* Mode 3 - derived from link local (MAC) address */
   uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
@@ -138,9 +139,9 @@ PROCESS_THREAD(udp_server_process, ev, data)
     dag = rpl_set_root(RPL_DEFAULT_INSTANCE,(uip_ip6addr_t *)&ipaddr);
     uip_ip6addr(&ipaddr, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
     rpl_set_prefix(dag, &ipaddr, 64);
-    PRINTF("created a new RPL dag\n");
+    printf("created a new RPL dag\n");
   } else {
-    PRINTF("failed to create a new RPL DAG\n");
+    printf("failed to create a new RPL DAG\n");
   }
 #endif /* UIP_CONF_ROUTER */
   
@@ -152,22 +153,22 @@ PROCESS_THREAD(udp_server_process, ev, data)
 
   server_conn = udp_new(NULL, UIP_HTONS(UDP_CLIENT_PORT), NULL);
   if(server_conn == NULL) {
-    PRINTF("No UDP connection available, exiting the process!\n");
+    printf("No UDP connection available, exiting the process!\n");
     PROCESS_EXIT();
   }
   udp_bind(server_conn, UIP_HTONS(UDP_SERVER_PORT));
 
-  PRINTF("Created a server connection with remote address ");
+  printf("Created a server connection with remote address ");
   PRINT6ADDR(&server_conn->ripaddr);
-  PRINTF(" local/remote port %u/%u\n", UIP_HTONS(server_conn->lport),
+  printf(" local/remote port %u/%u\n", UIP_HTONS(server_conn->lport),
          UIP_HTONS(server_conn->rport));
 
   while(1) {
     PROCESS_YIELD();
     if(ev == tcpip_event) {
-      tcpip_handler();
+      //tcpip_handler();
     } else if (ev == sensors_event && data == &button_sensor) {
-      PRINTF("Initiaing global repair\n");
+      printf("Initiaing global repair\n");
       rpl_repair_root(RPL_DEFAULT_INSTANCE);
     }
   }

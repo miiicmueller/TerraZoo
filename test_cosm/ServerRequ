@@ -1,0 +1,12 @@
+PUT /v2/feeds/237960644.json HTTP/1.1
+Authorization: Basic bWlpaWNtdWVsbGVyOmFjaGFuZ2VyMQ==
+User-Agent: TerraZoo/1.0.0
+Host: 127.0.0.1
+Accept: */*
+xApiKey: idSjVQyzGo5N9ihsha3IXdJlQwN0WrX4B7lFy7SFYH7PnUf0
+Content-Length: 264
+Content-Type: application/x-www-form-urlencoded
+
+{"version":"1.0.0","datastreams":[{"id" : "sensor1","datapoints":[{"at":"2014-03-22T14:00:00Z","value":"42"},{"at":"2014-03-22T14:01:01Z","value":"84"},{"at":"2014-03-22T14:02:02Z","value":"41"},{"at":"2014-03-22T14:03:03Z","value":"83"}],"current_value" : "60"}]}
+
+2001:470:1f10:333::2

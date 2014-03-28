@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eeml>
+<environment>
+<data id="Temp_Terr">
+<current_value>20</current_value>
+<datapoints>
+<value at="2014-03-07T14:30:00Z">42</value>
+<value at="2014-03-07T14:30:10Z">84</value>
+<value at="2014-03-07T14:30:20Z">41</value>
+<value at="2014-03-07T14:30:30Z">83</value>
+</datapoints>
+</data>
+</environment>
+</eeml>
