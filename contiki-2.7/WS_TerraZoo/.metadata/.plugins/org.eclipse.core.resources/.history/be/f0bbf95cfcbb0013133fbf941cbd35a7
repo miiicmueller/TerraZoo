@@ -140,7 +140,7 @@ PSOCK_END(p);
 /**
  * Main process pour la communication TCP
  */
-PROCESS_NAME
+
 PROCESS(xively_access, "Xively Access");
 AUTOSTART_PROCESSES(&xively_access);
 /*---------------------------------------------------------------------------*/
