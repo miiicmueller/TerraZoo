@@ -13,9 +13,7 @@
 #include "net/uip.h"
 #include "net/uip-ds6.h"
 #include "net/uip-udp-packet.h"
-//Pour test
-#include "dev/i2cmaster.h"
-#include "dev/tmp102.h"
+#include "TZ_types.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -26,6 +24,10 @@
 #define START_TCP_RECON 600
 
 #define PRINTF(...) printf(__VA_ARGS__)
+
+typedef enum {
+	kStatePutTemp, kStatePutLumin, kStateGetTempCons, kStateGetLuminCons,kStateWaitStart
+} StateXivelyEnum;
 
 /**
  * Déclaration des diverses variables
@@ -57,7 +59,7 @@ static StateXivelyEnum gState = kStateWaitStart;
 static struct etimer et;
 
 /**
- * Foncitons statiques
+ * Fonctions statiques
  */
 static int getNewTCPPort(struct psock *p);
 static int handle_connection_xively(struct psock *p, char* pFeedID,
@@ -76,7 +78,7 @@ static int getNewTCPPort(struct psock *p)
     ;
     PSOCK_READTO(p, '\n');
     gSharedPort = (unsigned) atoi(gBuffer);
-    PRINTF("Got: %u\r\n", gSharedPort);
+    PRINTF("[getNewTCPPort] Got: %u\r\n", gSharedPort);
 PSOCK_END(p);
 }
 
@@ -97,8 +99,8 @@ static int handle_connection_xively(struct psock *p, char* pFeedID,
 
 static char aValStr[10];
 
-PSOCK_BEGIN(p)
-;
+PSOCK_BEGIN(p);
+
 //FEED ID  ex : 770001174
 PSOCK_SEND_STR(p, pFeedID);
 PSOCK_SEND_STR(p, "\r\n");
@@ -124,13 +126,13 @@ if (strcmp(pRequest, "GET") == 0)
     if (strcmp(gBuffer_Xiv, "Error\r\n") == 0)
 	{
 	//On ne change pas la valeur
-	PRINTF("Error !\r\n");
+	PRINTF("[handle_connection_xively] Error !\r\n");
 	}
     else
 	{
-	PRINTF("Got : %s\r\n", gBuffer_Xiv);
+	PRINTF("[handle_connection_xively] Got : %s\r\n", gBuffer_Xiv);
 	*pValue = (unsigned) atoi(gBuffer_Xiv);
-	PRINTF("Got : %p\r\n", *pValue);
+	PRINTF("[handle_connection_xively] Got : %p\r\n", *pValue);
 	}
     }
 
@@ -140,9 +142,7 @@ PSOCK_END(p);
 /**
  * Main process pour la communication TCP
  */
-
 PROCESS(xively_access, "Xively Access");
-AUTOSTART_PROCESSES(&xively_access);
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD( xively_access, ev, data)
 {
@@ -172,17 +172,11 @@ static uint8_t aStreamType = 0;
 static uint8_t aTemp = 0;
 
 //Petite variable pour la démo
-static uint8_t ind = 0;
+static terraZooData_s* theDataStruct = NULL;
 
-// TODO Virer ces variables
-int16_t raw;
-uint16_t absraw;
-int16_t sign;
+PROCESS_BEGIN();
 
-PROCESS_BEGIN()
-;
-
-PRINTF("Setting server IP addressr\n");
+PRINTF("[xively_access] Setting server IP addressr\r\n");
 
 // Adresse IP du serveur TCP sur la machine host tiré dur prefix recu par la connexion slip
 // IP = aaaa::1
@@ -199,24 +193,14 @@ tmp102_init();
 
 while (1)
 {
-PRINTF("\nRestart.\n");
-//TODO attente de la synchrtonisation
-// pour l'instant on attend 60 secondes
-etimer_set(&et, START_TCP_TIME);
-PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
+PROCESS_WAIT_EVENT_UNTIL(ev==XIVELY_ACCESS_START);
+PRINTF("[xively_access] Restart.\r\n");
 
 //Get temp
-raw = tmp102_read_temp_raw();
-sign = 1;
-absraw = raw;
-if (raw < 0)
-    {		// Perform 2C's if sensor returned negative data
-    absraw = (raw ^ 0xFFFF) + 1;
-    sign = -1;
-    }
-pValue = (absraw >> 8) * sign;
+theDataStruct=(terraZooData_s*)data;
+pValue=theDataStruct->theTemp;
 
-PRINTF("Temp : %d\r\n", pValue);
+PRINTF("[xively_access] Temp : %d\r\n", pValue);
 
 // Init des variables
 aConnected = 0;
@@ -227,14 +211,14 @@ gSharedPort = 0;
 for (aRetryNum = 0; aRetryNum <= TCP_RETRY_NUM && !aConnected; aRetryNum++)
     {
 
-    PRINTF("Connecting %d on port %d\r\n", aRetryNum, TCP_SERVER_PORT);
+    PRINTF("[xively_access] Connecting %d on port %d\r\n", aRetryNum, TCP_SERVER_PORT);
 
     conn = tcp_connect(&server_addr, UIP_HTONS(TCP_SERVER_PORT),
     NULL);
 
     if (conn == NULL)
 	{
-	PRINTF("Could not open TCP connection\r\n");
+	PRINTF("[xively_access] Could not open TCP connection\r\n");
 	continue;
 	}
 
@@ -246,20 +230,20 @@ for (aRetryNum = 0; aRetryNum <= TCP_RETRY_NUM && !aConnected; aRetryNum++)
 
     if (uip_connected())
 	{
-	PRINTF("Connected\r\n");
+	PRINTF("[xively_access] Connected\r\n");
 	aConnected = 1;
 	gSharedPort = 0;
 	}
     else
 	{
-	PRINTF("Retrying...\r\n");
+	PRINTF("[xively_access] Retrying...\r\n");
 	aConnected = 0;
 	}
     }
 
 if (uip_connected())
     {
-    PRINTF("P80 SOCK_INIT\r\n");
+    PRINTF("[xively_access] P80 SOCK_INIT\r\n");
     PSOCK_INIT(&gPSocketP80, gBuffer, sizeof(gBuffer));
 
     // On récupère le port
@@ -272,7 +256,7 @@ if (uip_connected())
 	if ((uip_timedout() || uip_aborted() || uip_closed())
 		&& (aTemp != PT_ENDED))
 	    {
-	    PRINTF("Connexion error...");
+	    PRINTF("[xively_access] Connexion error...\r\n");
 	    aConnError = 1;
 	    }
 	}
@@ -296,14 +280,14 @@ if (uip_connected())
 	    etimer_set(&et, START_TCP_RECON);
 	    PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
 
-	    PRINTF("Connecting %d on port %u \r\n", aRetryNum, gSharedPort);
+	    PRINTF("[xively_access] Connecting %d on port %u \r\n", aRetryNum, gSharedPort);
 
 	    connXiv = tcp_connect(&server_addr, UIP_HTONS(gSharedPort),
 	    NULL);
 
 	    if (connXiv == NULL)
 		{
-		PRINTF("Could not open TCP connection\r\n");
+		PRINTF("[xively_access] Could not open TCP connection\r\n");
 		continue;
 		}
 
@@ -316,14 +300,14 @@ if (uip_connected())
 
 	    if (uip_connected())
 		{
-		PRINTF("Connected\r\n");
+		PRINTF("[xively_access] Connected\r\n");
 		aConnected = 1;
 		gSharedPort = 0;
 		}
 	    else
 		{
-		PRINTF("Could not establish connection\r\n");
-		PRINTF("Retrying...\r\n");
+		PRINTF("[xively_access] Could not establish connection\r\n");
+		PRINTF("[xively_access] Retrying...\r\n");
 		aConnected = 0;
 		}
 	    }
@@ -370,7 +354,7 @@ if (uip_connected())
 		if ((uip_timedout() || uip_aborted() || uip_closed())
 			&& (aTemp != PT_ENDED))
 		    {
-		    PRINTF("Connexion error...");
+		    PRINTF("[xively_access] Connexion error...\r\n");
 		    aConnError = 1;
 		    }
 
@@ -379,7 +363,7 @@ if (uip_connected())
 
 	    PSOCK_CLOSE(&gPSocketPN);
 
-	    PRINTF("\nConnection closed.\n");
+	    PRINTF("[xively_access] Connection closed.\r\n");
 	    }
 	}
     }
