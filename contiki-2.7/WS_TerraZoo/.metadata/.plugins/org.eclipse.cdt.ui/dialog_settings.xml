@@ -5,12 +5,12 @@
 	</section>
 	<section name="completion_proposal_size">
 	</section>
+	<section name="RenameInformationPopup">
+		<item value="2" key="snap_position"/>
+	</section>
 	<section name="org.eclipse.cdt.ui.text.hover.CMacroExpansionExploration.internal">
 		<item value="459" key="size.width"/>
 		<item value="188" key="size.height"/>
-	</section>
-	<section name="RenameInformationPopup">
-		<item value="2" key="snap_position"/>
 	</section>
 	<section name="CRenameRefactoringInputPage">
 	</section>

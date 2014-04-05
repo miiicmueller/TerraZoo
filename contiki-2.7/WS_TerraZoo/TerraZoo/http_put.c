@@ -206,7 +206,7 @@ gSharedPort = 0;
 /* Open a TCP connection to port 80 */
 for (aRetryNum = 0; aRetryNum <= TCP_RETRY_NUM && !aConnected; aRetryNum++)
     {
-
+      
     PRINTF("[p_xively_access] Connecting %d on port %d\r\n", aRetryNum, TCP_SERVER_PORT);
 
     conn = tcp_connect(&server_addr, UIP_HTONS(TCP_SERVER_PORT),
