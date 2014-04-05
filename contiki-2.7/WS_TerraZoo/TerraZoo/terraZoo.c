@@ -6,11 +6,12 @@
 
 #include "contiki.h"
 #include <stdio.h>
-//#include "gettmp.h"
-#include "http_put.h"
 #include "sys/clock.h"
-#include "TZ_types.h"
 #include "sys/etimer.h"
+#include "TZ_types.h"
+#include "http_put.h"
+#include "in_out.h"
+#include "regulation.h"
 
 #define MAIN_PROCESS_PERIOD CLOCK_SECOND*60
 
@@ -20,13 +21,13 @@
 
 
 //prototype du main_process
-PROCESS(main_process, "main_process");
+PROCESS(p_main_process, "main_process");
 
 //démarrage des processus
-AUTOSTART_PROCESSES(&main_process);
+AUTOSTART_PROCESSES(&p_main_process);
 
 //déclaration du main_process
-PROCESS_THREAD( main_process, ev, data)
+PROCESS_THREAD( p_main_process, ev, data)
 {
   //déclaration des variables du main process
   static struct etimer et;
@@ -41,7 +42,10 @@ PROCESS_THREAD( main_process, ev, data)
   theTerraZooData.theTemp=0;
   
   //démarrage des process secondaires
-  process_start(&xively_access, NULL);
+  process_start(&p_inputs, NULL);
+  process_start(&p_regulation, NULL);
+  process_start(&p_outputs, NULL);
+  process_start(&p_xively_access, NULL);
   
   
   //première initialisation du timer de synchronisation des process
@@ -52,19 +56,22 @@ PROCESS_THREAD( main_process, ev, data)
   //relancemement du timer (timer relancé après l'avoir lu pour que le temps de boucle soit stable)
   PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
   etimer_set(&et, MAIN_PROCESS_PERIOD);
-  PRINTF("[main_process] new loop\r\n");
+  PRINTF("[main_process] Restart\r\n");
   
   //acquisition des données des capteurs
-  theTerraZooData.theTemp++;
+  process_post_synch(&p_inputs, P_IN_START, &theTerraZooData);
   PRINTF("[main_process] Temp : %d\r\n", theTerraZooData.theTemp);
-  //process_post_synch(&mote_data_input, DATA_INPUT_START, &theTerraZooData);
+  
+  //calculs de régulation
+  process_post_synch(&p_regulation, P_REGULATION_START, &theTerraZooData);
   
   //régulation des sorties en fonctions des données des capteurs et des consignes
-  //process_post_synch(&mote_reg_output, REG_OUTPUT_START, &theTerraZooData);
+  process_post_synch(&p_outputs, P_IN_START, &theTerraZooData);
   
   //envoi des données sur le serveur Xively
-  process_post_synch(&xively_access, XIVELY_ACCESS_START, &theTerraZooData);  
+  process_post_synch(&p_xively_access, P_XIVELY_ACCESS_START, &theTerraZooData);  
   }
+  
   PROCESS_END();
 }
 

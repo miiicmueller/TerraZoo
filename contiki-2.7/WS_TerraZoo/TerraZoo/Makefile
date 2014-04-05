@@ -12,7 +12,7 @@ UIP_CONF_IPV6=1
 CFLAGS+= -DUIP_CONF_IPV6_RPL
 
 
-PROJECT_SOURCEFILES += xively_cst.c http_put.c
+PROJECT_SOURCEFILES += xively_cst.c http_put.c regulation.c in_out.c
 
 CONTIKI = ../..
 include $(CONTIKI)/Makefile.include
