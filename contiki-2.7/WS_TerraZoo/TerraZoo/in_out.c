@@ -6,12 +6,17 @@
 
 #include "contiki.h"
 #include <stdio.h>
+#include "dev/leds.h"
 #include "TZ_types.h"
 #include "in_out.h"
 #include "getlight.h"
 #include "gettmp.h"
 
+#ifdef DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
 
 /**
  * process pour l'aquisition des capteurs

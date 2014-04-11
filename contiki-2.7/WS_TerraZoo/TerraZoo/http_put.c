@@ -21,10 +21,13 @@
 
 #define TCP_SERVER_PORT 80
 #define TCP_RETRY_NUM 5
-#define START_TCP_TIME 9600
 #define START_TCP_RECON 600
 
+#ifdef DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
 
 typedef enum
     {

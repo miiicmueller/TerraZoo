@@ -42,8 +42,10 @@
 #include "dev/i2cmaster.h"
 #include "dev/light-ziglet.h"
 
-#ifndef PRINTF(...)
+#ifdef DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
 #endif
 
 

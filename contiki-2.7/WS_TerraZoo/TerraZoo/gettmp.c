@@ -43,19 +43,11 @@
 #include "dev/tmp102.h"
 #include "gettmp.h"
 
-#if 1
+#ifdef DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
 #else
 #define PRINTF(...)
 #endif
-
-#if 0
-#define PRINTFDEBUG(...) printf(__VA_ARGS__)
-#else
-#define PRINTFDEBUG(...)
-#endif
-
-#define TMP102_READ_INTERVAL (CLOCK_SECOND/6)
 
 /*---------------------------------------------------------------------------*/
 int16_t gettmp()
@@ -71,7 +63,7 @@ int16_t gettmp()
 
     sign = 1;
 
-    PRINTFDEBUG("Reading Temp...\n");
+    PRINTF("Reading Temp...\n");
     raw = tmp102_read_temp_raw();
     absraw = raw;
     if (raw < 0)

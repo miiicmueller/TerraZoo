@@ -13,9 +13,14 @@
 #include "in_out.h"
 #include "regulation.h"
 
-#define MAIN_PROCESS_PERIOD CLOCK_SECOND*60
+#define APPLI_TIME 60
+#define MAIN_PROCESS_PERIOD CLOCK_SECOND*APPLI_TIME
 
+#ifdef DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
 
 //définition de variables globales
 
@@ -46,7 +51,6 @@ PROCESS_THREAD( p_main_process, ev, data)
   process_start(&p_regulation, NULL);
   process_start(&p_outputs, NULL);
   process_start(&p_xively_access, NULL);
-  
   
   //première initialisation du timer de synchronisation des process
   etimer_set(&et, MAIN_PROCESS_PERIOD);
