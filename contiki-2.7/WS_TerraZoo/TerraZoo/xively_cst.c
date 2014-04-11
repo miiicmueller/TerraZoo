@@ -15,13 +15,18 @@
 
  */
 
-char* gXivelyDevTab[NUMBER_OF_TERRA] = { "210248330"};//, "1082788112" };
+char* gXivelyDevTab[NUMBER_OF_TERRA] =
+    {
+    "210248330", "1082788112", "1539107217"
+    };
 
 /*
  gXivelyDevChan contient tout les cannaux à lire ou à écrire
  */
-char* gXivelyDevChan[NUMBER_OF_STREAM] = { "consigne_lumin", "consigne_temp",
-		"sensor_lumin", "sensor_temp" };
+char* gXivelyDevChan[NUMBER_OF_STREAM] =
+    {
+    "consigne_lumin", "consigne_temp", "sensor_lumin", "sensor_temp"
+    };
 
 /*
  gXivelyDevTab contient toutes les clés Api de xively
@@ -31,11 +36,17 @@ char* gXivelyDevChan[NUMBER_OF_STREAM] = { "consigne_lumin", "consigne_temp",
  !! Mettre dans le même ordre que gXivelyDevTab[n] !!
 
  */
-char* gXivelyDevApiKey[NUMBER_OF_TERRA] = {
-		"LJ4ZXbwj82zTbqXAuHVEp8pROxTTaMfLLxj1tuD0DMxTtL3N"};//,
-	//	"Atg2i5U3nedPkfD6gTI8VacoZiKw2YyIupXf9nvGME4KIUpx" };
+char* gXivelyDevApiKey[NUMBER_OF_TERRA] =
+    {
+	    "LJ4ZXbwj82zTbqXAuHVEp8pROxTTaMfLLxj1tuD0DMxTtL3N",
+	    "Atg2i5U3nedPkfD6gTI8VacoZiKw2YyIupXf9nvGME4KIUpx",
+	    "R5z9dd4uQ15PSauuF68vTuntYGibKNoc2UnqBXW5Hyr2rbC2"
+    };
 
 /*
  gXivelyDevRequest contient toutes les requetes possibles
  */
-char* gXivelyDevRequest[2] = { "PUT", "GET" };
+char* gXivelyDevRequest[2] =
+    {
+    "PUT", "GET"
+    };

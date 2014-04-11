@@ -1,7 +1,7 @@
 #ifndef XIVELY_CST_H
 #define XIVELY_CST_H
 
-#define NUMBER_OF_TERRA 1
+#define NUMBER_OF_TERRA 3
 #define NUMBER_OF_STREAM 4
 
 // Variable passée à la compilation
