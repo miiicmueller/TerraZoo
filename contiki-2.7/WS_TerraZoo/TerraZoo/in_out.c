@@ -6,12 +6,17 @@
 
 #include "contiki.h"
 #include <stdio.h>
+#include "dev/leds.h"
 #include "TZ_types.h"
 #include "in_out.h"
 #include "getlight.h"
 #include "gettmp.h"
 
+#ifdef DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
 
 /**
  * process pour l'aquisition des capteurs
@@ -46,12 +51,10 @@ PROCESS_THREAD(p_inputs, ev, data)
     aTemperature=gettmp();
     theDataStruct->theTemp=aTemperature;
 
-    PRINTF("[p_inputs] TempLoc : %d\r\n", aTemperature);
     PRINTF("[p_inputs] Temp : %d\r\n", theDataStruct->theTemp);
 
-
     //Get light
-    aLight=getlight();
+    aLight=500;//getlight();
     theDataStruct->theLight=aLight;
 
     PRINTF("[p_inputs] Light : %d\r\n", aLight);

@@ -12,10 +12,22 @@
 #include "http_put.h"
 #include "in_out.h"
 #include "regulation.h"
+#include "dev/tmp102.h"
+#include "dev/light-ziglet.h"
 
-#define MAIN_PROCESS_PERIOD CLOCK_SECOND*60
+#ifdef DEBUG
+#define APPLI_TIME 30
+#else
+#define APPLI_TIME 60
+#endif
 
+#define MAIN_PROCESS_PERIOD CLOCK_SECOND*APPLI_TIME
+
+#ifdef DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
 
 //définition de variables globales
 
@@ -36,17 +48,25 @@ PROCESS_THREAD( p_main_process, ev, data)
   
   //début du main process
   PROCESS_BEGIN();
-  PRINTF("[main_process] BEGIN\r\n");
+  PRINTF("[main_process] process begin\r\n");
   
   //initialisation des variables du main process
   theTerraZooData.theTemp=0;
+  theTerraZooData.theLight=0;
+  theTerraZooData.theTempConsigne=0;
+  theTerraZooData.theLightConsigne=0;
+  theTerraZooData.isHeaterOn=false;
+  theTerraZooData.isLightOn=false;
+  
+  //initialisation des périphériques (capteurs)
+  tmp102_init();
+  //light_ziglet_init();
   
   //démarrage des process secondaires
   process_start(&p_inputs, NULL);
   process_start(&p_regulation, NULL);
   process_start(&p_outputs, NULL);
   process_start(&p_xively_access, NULL);
-  
   
   //première initialisation du timer de synchronisation des process
   etimer_set(&et, MAIN_PROCESS_PERIOD);
@@ -60,7 +80,6 @@ PROCESS_THREAD( p_main_process, ev, data)
   
   //acquisition des données des capteurs
   process_post_synch(&p_inputs, P_IN_START, &theTerraZooData);
-  PRINTF("[main_process] Temp : %d\r\n", theTerraZooData.theTemp);
   
   //calculs de régulation
   process_post_synch(&p_regulation, P_REGULATION_START, &theTerraZooData);

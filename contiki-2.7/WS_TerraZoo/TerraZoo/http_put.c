@@ -21,10 +21,13 @@
 
 #define TCP_SERVER_PORT 80
 #define TCP_RETRY_NUM 5
-#define START_TCP_TIME 9600
 #define START_TCP_RECON 600
 
+#ifdef DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
 
 typedef enum
     {
@@ -339,14 +342,14 @@ if (uip_connected())
 	    case kStateGetLuminCons:
 		aReqType = REQ_TYPE_GET;
 		aStreamType = STREAM_CONS_LUM;
-		gState = kStateGetTempCons;
 		pValue = 0;
+		gState = kStateGetTempCons;
 		break;
 	    case kStateGetTempCons:
 		aReqType = REQ_TYPE_GET;
 		aStreamType = STREAM_CONS_TEMP;
-		gState = kStatePutLumin;
 		pValue = 0 ;
+		gState = kStatePutLumin;
 		break;
 	    default:
 		;
@@ -373,11 +376,11 @@ if (uip_connected())
 	    PSOCK_CLOSE(&gPSocketPN);
 
 	    //On met la valeur à la bonne place
-	    if (gState == kStateGetLuminCons)
+	    if (aStreamType == STREAM_CONS_LUM)
 		{
 		theDataStruct->theLightConsigne = pValue;
 		}
-	    else if (gState == kStateGetTempCons)
+	    else if (aStreamType == STREAM_CONS_TEMP)
 		{
 		theDataStruct->theTempConsigne = pValue;
 		}

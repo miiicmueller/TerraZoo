@@ -7,9 +7,13 @@
 #include "contiki.h"
 #include <stdio.h>
 #include "TZ_types.h"
-#include "in_out.h"
+#include "regulation.h"
 
+#ifdef DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
 
 /**
  * process pour l'aquisition des capteurs
@@ -36,7 +40,7 @@ PROCESS_THREAD(p_regulation, ev, data)
     theDataStruct=(terraZooData_s*)data;
   
     //régulation de température
-    if (theDataStruct->theTemp > theDataStruct->theTempConsigne)
+    if (theDataStruct->theTemp < theDataStruct->theTempConsigne)
 	{
 	theDataStruct->isHeaterOn=true;
 	}
@@ -50,7 +54,7 @@ PROCESS_THREAD(p_regulation, ev, data)
     PRINTF("[p_regulation] HeaterOn : %d\r\n", theDataStruct->isHeaterOn);
 
     //régulation de luminosité
-    if (theDataStruct->theLight > theDataStruct->theLightConsigne)
+    if (theDataStruct->theLight < theDataStruct->theLightConsigne)
 	{
 	theDataStruct->isLightOn=true;
 	}

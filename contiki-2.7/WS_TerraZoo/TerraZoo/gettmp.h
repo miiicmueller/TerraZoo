@@ -1,4 +1,4 @@
-// Tâche d'acquisition du capteur de température
+// Fonction d'acquisition du capteur de température
 //
 // Michael Mueller, Aubin Keumeuneuk, Cyrille Savy
 //

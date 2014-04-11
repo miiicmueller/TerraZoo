@@ -1,4 +1,4 @@
-// Tâche d'acquisition du capteur de luminosité
+// Fonction d'acquisition du capteur de luminosité
 //
 // Michael Mueller, Aubin Keumeuneuk, Cyrille Savy
 //
