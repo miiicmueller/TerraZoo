@@ -1,4 +1,4 @@
-// Tâche de calcul de la régulation du projet TerraZoo
+// Tâche de régulation de température et de luminosité
 //
 // Michael Mueller, Aubin Keumeuneuk, Cyrille Savy
 //
@@ -9,42 +9,65 @@
 #include "TZ_types.h"
 #include "regulation.h"
 
+#ifdef DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
 
 /**
  * process pour l'aquisition des capteurs
  */
-PROCESS(p_regulation, "regulation");
+PROCESS(p_regulation, "p_regulation");
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(p_regulation, ev, data)
   {
   //déclaration des variables
   static terraZooData_s* theDataStruct;
-  static int16_t aTemperature;
-  static int16_t aLight;
 
   PROCESS_BEGIN();
-  PRINTF("[regulation] Process Begin\r\n");
+  PRINTF("[p_regulation] Process Begin\r\n");
 
   //Initialisations
-  theDataStruct = NULL;
-  aTemperature = 0;
-  aLight = 0;
+  theDataStruct=NULL;
+
 
   while (1)
     {
     PROCESS_WAIT_EVENT_UNTIL(ev==P_REGULATION_START);
-    PRINTF("[regulation] Restart\r\n");
+    PRINTF("[p_regulation] Restart\r\n");
 
-    //Compute temp
     theDataStruct=(terraZooData_s*)data;
-    theDataStruct->isHeaterOn = !theDataStruct->isHeaterOn;
+  
+    //régulation de température
+    if (theDataStruct->theTemp < theDataStruct->theTempConsigne)
+	{
+	theDataStruct->isHeaterOn=true;
+	}
+    else
+	{
+	theDataStruct->isHeaterOn=false;
+	}
 
+    PRINTF("[p_regulation] TempConsigne : %d\r\n", theDataStruct->theTempConsigne);
+    PRINTF("[p_regulation] Temp : %d\r\n", theDataStruct->theTemp);
+    PRINTF("[p_regulation] HeaterOn : %d\r\n", theDataStruct->isHeaterOn);
 
-    //Compute light
-    theDataStruct=(terraZooData_s*)data;
-    theDataStruct->isLightOn = !theDataStruct->isLightOn;
+    //régulation de luminosité
+    if (theDataStruct->theLight < theDataStruct->theLightConsigne)
+	{
+	theDataStruct->isLightOn=true;
+	}
+    else
+	{
+	theDataStruct->isLightOn=false;
+	}
+	
+    PRINTF("[p_regulation] LightConsigne : %d\r\n", theDataStruct->theLightConsigne);
+    PRINTF("[p_regulation] Light : %d\r\n", theDataStruct->theLight);
+    PRINTF("[p_regulation] LightOn : %d\r\n", theDataStruct->isLightOn);
+    
     }
-
     PROCESS_END();
   }
+

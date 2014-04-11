@@ -119,7 +119,7 @@ light_ziglet_init (void)
       _TSL2563_STATUS |= INITED;
 
       /* Set up ports and pins for I2C communication */
-      i2c_enable ();
+      i2c_enable();
       return;
    }
 }
