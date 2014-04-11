@@ -26,9 +26,14 @@
 
 #define PRINTF(...) printf(__VA_ARGS__)
 
-typedef enum {
-	kStatePutTemp, kStatePutLumin, kStateGetTempCons, kStateGetLuminCons,kStateWaitStart
-} StateXivelyEnum;
+typedef enum
+    {
+    kStatePutTemp,
+    kStatePutLumin,
+    kStateGetTempCons,
+    kStateGetLuminCons,
+    kStateWaitStart
+    } StateXivelyEnum;
 
 /**
  * Déclaration des diverses variables
@@ -100,7 +105,8 @@ static int handle_connection_xively(struct psock *p, char* pFeedID,
 
 static char aValStr[10];
 
-PSOCK_BEGIN(p);
+PSOCK_BEGIN(p)
+;
 
 //FEED ID  ex : 770001174
 PSOCK_SEND_STR(p, pFeedID);
@@ -171,7 +177,8 @@ static uint8_t aTemp = 0;
 //Données récupérées dans le programme principal
 static terraZooData_s* theDataStruct;
 
-PROCESS_BEGIN();
+PROCESS_BEGIN()
+;
 PRINTF("[p_xively_access] Process Begin\r\n");
 
 PRINTF("[p_xively_access] Setting server IP address\r\n");
@@ -193,8 +200,7 @@ PROCESS_WAIT_EVENT_UNTIL(ev==P_XIVELY_ACCESS_START);
 PRINTF("[p_xively_access] Restart\r\n");
 
 //Get temp
-theDataStruct=(terraZooData_s*)data;
-pValue=theDataStruct->theTemp;
+theDataStruct = (terraZooData_s*) data;
 
 PRINTF("[p_xively_access] Temp : %d\r\n", pValue);
 
@@ -206,8 +212,9 @@ gSharedPort = 0;
 /* Open a TCP connection to port 80 */
 for (aRetryNum = 0; aRetryNum <= TCP_RETRY_NUM && !aConnected; aRetryNum++)
     {
-      
-    PRINTF("[p_xively_access] Connecting %d on port %d\r\n", aRetryNum, TCP_SERVER_PORT);
+
+    PRINTF("[p_xively_access] Connecting %d on port %d\r\n", aRetryNum,
+	    TCP_SERVER_PORT);
 
     conn = tcp_connect(&server_addr, UIP_HTONS(TCP_SERVER_PORT),
     NULL);
@@ -240,7 +247,7 @@ for (aRetryNum = 0; aRetryNum <= TCP_RETRY_NUM && !aConnected; aRetryNum++)
 if (uip_connected())
     {
     PRINTF("[p_xively_access] P80 SOCK_INIT\r\n");
-    PSOCK_INIT(&gPSocketP80, (uint8_t*)gBuffer, sizeof(gBuffer));
+    PSOCK_INIT(&gPSocketP80, (uint8_t* )gBuffer, sizeof(gBuffer));
 
     // On récupère le port
     do
@@ -276,7 +283,8 @@ if (uip_connected())
 	    etimer_set(&et, START_TCP_RECON);
 	    PROCESS_WAIT_EVENT_UNTIL(etimer_expired(&et));
 
-	    PRINTF("[p_xively_access] Connecting %d on port %u \r\n", aRetryNum, gSharedPort);
+	    PRINTF("[p_xively_access] Connecting %d on port %u \r\n", aRetryNum,
+		    gSharedPort);
 
 	    connXiv = tcp_connect(&server_addr, UIP_HTONS(gSharedPort),
 	    NULL);
@@ -310,7 +318,8 @@ if (uip_connected())
 
 	if (uip_connected())
 	    {
-	    PSOCK_INIT(&gPSocketPN, (uint8_t*)gBuffer_Xiv, sizeof(gBuffer_Xiv));
+	    PSOCK_INIT(&gPSocketPN, (uint8_t* )gBuffer_Xiv,
+		    sizeof(gBuffer_Xiv));
 
 	    //On test la machine d'état
 	    switch (gState)
@@ -319,21 +328,25 @@ if (uip_connected())
 		aReqType = REQ_TYPE_PUT;
 		aStreamType = STREAM_SENS_LUM;
 		gState = kStatePutTemp;
+		pValue = theDataStruct->theLight;
 		break;
 	    case kStatePutTemp:
 		aReqType = REQ_TYPE_PUT;
 		aStreamType = STREAM_SENS_TEMP;
 		gState = kStateGetLuminCons;
+		pValue = theDataStruct->theTemp;
 		break;
 	    case kStateGetLuminCons:
 		aReqType = REQ_TYPE_GET;
 		aStreamType = STREAM_CONS_LUM;
 		gState = kStateGetTempCons;
+		pValue = 0;
 		break;
 	    case kStateGetTempCons:
 		aReqType = REQ_TYPE_GET;
 		aStreamType = STREAM_CONS_TEMP;
 		gState = kStatePutLumin;
+		pValue = 0 ;
 		break;
 	    default:
 		;
@@ -358,6 +371,16 @@ if (uip_connected())
 	    while ((aTemp != PT_ENDED) && !aConnError);
 
 	    PSOCK_CLOSE(&gPSocketPN);
+
+	    //On met la valeur à la bonne place
+	    if (gState == kStateGetLuminCons)
+		{
+		theDataStruct->theLightConsigne = pValue;
+		}
+	    else if (gState == kStateGetTempCons)
+		{
+		theDataStruct->theTempConsigne = pValue;
+		}
 
 	    PRINTF("[p_xively_access] Connection closed.\r\n");
 	    }
