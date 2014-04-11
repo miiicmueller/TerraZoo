@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include "TZ_types.h"
 #include "in_out.h"
+#include "getlight.h"
+#include "gettmp.h"
 
 #define PRINTF(...) printf(__VA_ARGS__)
 
@@ -37,10 +39,11 @@ PROCESS_THREAD(p_inputs, ev, data)
     {
     PROCESS_WAIT_EVENT_UNTIL(ev==P_IN_START);
     PRINTF("[p_inputs] Restart\r\n");
+  
+    theDataStruct=(terraZooData_s*)data;
 
     //Get temp
-    theDataStruct=(terraZooData_s*)data;
-    aTemperature++;
+    aTemperature=gettmp();
     theDataStruct->theTemp=aTemperature;
 
     PRINTF("[p_inputs] TempLoc : %d\r\n", aTemperature);
@@ -48,7 +51,7 @@ PROCESS_THREAD(p_inputs, ev, data)
 
 
     //Get light
-    theDataStruct=(terraZooData_s*)data;
+    aLight=getlight();
     theDataStruct->theLight=aLight;
 
     PRINTF("[p_inputs] Light : %d\r\n", aLight);
@@ -83,17 +86,30 @@ PROCESS_THREAD(p_outputs, ev, data)
     PROCESS_WAIT_EVENT_UNTIL(ev==P_OUT_START);
     PRINTF("[p_outputs] Restart\r\n");
 
-    //write heater temp
     theDataStruct=(terraZooData_s*)data;
 
+    //write heater temp
+    if(theDataStruct->isHeaterOn==true)
+      {
+      leds_on(LEDS_RED);
+      }
+    else
+      {
+      leds_off(LEDS_RED);
+      }
 
     PRINTF("[p_outputs] Write heater\r\n");
 
 
     //write light
-    theDataStruct=(terraZooData_s*)data;
-
-
+    if(theDataStruct->isLightOn==true)
+      {
+      leds_on(LEDS_BLUE);
+      }
+    else
+      {
+      leds_off(LEDS_BLUE);
+      }
     PRINTF("[p_outputs] Write Light\r\n");
     }
 
